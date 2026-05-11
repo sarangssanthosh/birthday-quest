@@ -22,8 +22,8 @@ const dialogueSettings = {
         14: "OKay there's nobody here...next place!",
         21: "This is surprising... not at KFC",
         29: "I really thought he'd be here..",
-        37: "Yeah I guess he's not a big fan of the heat",
-        45: "Wtf does he like, if not the cold too!!!!",
+        37: "I guess he's not a big fan of the heat",
+        45: "Wtf does he even like, not the cold too!!!!",
         53: "He's not home too, maybe Kerala?"
     }
 };
@@ -230,7 +230,7 @@ class StartScene extends Phaser.Scene {
         }).setOrigin(0.5);
         this.tweens.add({ targets: titleText, scale: 1.05, duration: 800, yoyo: true, loop: -1, ease: 'Sine.easeInOut' });
 
-        this.add.text(W/2, H/2 + 100, "Sarang is missing.\nOnly you can find him.\n\nMaybe he's at some place \nyou guys went...or maybe not", { 
+        this.add.text(W/2, H/2 + 100, "Sarang is missing.\nOnly you can find him.\n\nMaybe he's somewhere \nyou guys visited?...or maybe not?", { 
             fontFamily: retroFont, fontSize: '12px', fill: '#e0f7fa', stroke: '#000', strokeThickness: 4, align: 'center', lineSpacing: 5
         }).setOrigin(0.5);
         
@@ -405,7 +405,7 @@ class MainGame extends Phaser.Scene {
                     
                     if (this.score === 61 && !this.portalDialogueTriggered) {
                         this.portalDialogueTriggered = true;
-                        this.showDialogue("Wait... what is that?!\nA TRIPPY PORTAL?!\nJump into it!");
+                        this.showDialogue("He's not here too..\nWTFF IS THAT!!");
                     }
 
                     if (this.score === 62 && !this.portalSpawned) {
@@ -441,27 +441,32 @@ class MainGame extends Phaser.Scene {
 updateLevel() {
         let idx = 0;
         for (let i = 0; i < this.milestones.length; i++) { if (this.score >= this.milestones[i]) idx = i; }
-        
         if (idx !== this.currentLevelIndex && !this.isTransitioning) {
-            if (idx > 0 && idx % 2 === 0) { this.queueHeartSpawn = true; }
             
+            if (idx > 0 && idx % 2 === 0) {
+                this.queueHeartSpawn = true;
+            }
+
             this.isTransitioning = true; 
             this.dialogueTriggered = false;
             let next = this.levels[idx];
             
-            // --- THE FIX: Sync positions before the fade starts ---
-            this.fadeBg.setTexture(next.name);
+            // 1. Prepare the incoming background at the start (0)
+            this.fadeBg.setTexture(next.name).setAlpha(0);
+            this.fadeBg.tilePositionX = 0; 
             this.updateBgScale(this.fadeBg, idx);
-            this.fadeBg.setAlpha(0);
-            this.fadeBg.tilePositionX = this.background.tilePositionX; // Match current scroll exactly
-            
+
             this.tweens.add({
-                targets: this.fadeBg, 
-                alpha: 1, 
+                targets: this.fadeBg,
+                alpha: 1,
                 duration: 1500,
                 onComplete: () => {
+                    // 2. Once faded in, swap the main background texture
                     this.background.setTexture(next.name);
-                    this.background.tilePositionX = this.fadeBg.tilePositionX; // Keep the scroll continuous
+                    
+                    // 3. Sync the main background to exactly where the fade layer reached
+                    this.background.tilePositionX = this.fadeBg.tilePositionX;
+                    
                     this.updateBgScale(this.background, idx);
                     this.fadeBg.setAlpha(0);
                     this.currentLevelIndex = idx; 
@@ -837,7 +842,7 @@ class UIOverlay extends Phaser.Scene {
             this.add.text(W/2, H/2 - 50, " AMAZE! \n ", scoreStyle).setOrigin(0.5); 
             this.add.text(W/2, H/2 + 20, "YOU'RE DEAD\n\nCONTINUE?", premiumText).setOrigin(0.5);
         } else { 
-            this.add.text(W/2, H/2 - 50, "GAME \nOVER \n \nplay \nagain?", { ...scoreStyle, fill: '#ff4444' }).setOrigin(0.5); 
+            this.add.text(W/2, H/2 - 50, " GAME \nOVER \n \nplay \nagain?", { ...scoreStyle, fill: '#ff4444' }).setOrigin(0.5); 
         }
         
         this.input.on('pointerdown', handleInteraction); 
