@@ -8,8 +8,8 @@ document.head.appendChild(fontLink);
 const gameSettings = {
     gravity: 900,         
     jumpStrength: -360,   
-    pipeSpeed: -280,      
-    pipeSpawnDelay: 1800, 
+    pipeSpeed: -200,      
+    pipeSpawnDelay: 2500, 
     pipeGap: 220,         
     pipeOpacity: 0.6      
 };
@@ -23,7 +23,7 @@ const dialogueSettings = {
         21: "This is surprising... not at KFC",
         29: "I really thought he'd be here..",
         37: "Yeah I guess he's not a big fan of the heat",
-        45: "Wtf does he like if not the cold too!!!!",
+        45: "Wtf does he like, if not the cold too!!!!",
         53: "He's not home too, maybe Kerala?"
     }
 };
@@ -113,7 +113,7 @@ class PreloadScene extends Phaser.Scene {
             { name: "College", img: "delhi_college.png" },      
             { name: "Hostel", img: "delhi_hostel.png" },  
             { name: "K F C", img: "delhi_town.png" },   
-            { name: "LJPT NGR", img: "delhi_house.png" },  
+            { name: "LJPT Home", img: "delhi_house.png" },  
             { name: "Jaipur", img: "jaipur.png" },
             { name: "McLeod Ganj", img: "mcleodganj.png" },
             { name: "Sharjah", img: "dubai.png" },
@@ -218,7 +218,7 @@ class StartScene extends Phaser.Scene {
 
         this.introMusic = dummyAudio;
         if (this.cache.audio.exists('intro_bgm')) {
-            this.introMusic = this.sound.add('intro_bgm', { loop: true, volume: 0.5 });
+            this.introMusic = this.sound.add('intro_bgm', { loop: true, volume: 0.2 });
             this.introMusic.play();
         }
 
@@ -302,20 +302,10 @@ class MainGame extends Phaser.Scene {
         this.time.addEvent({ delay: 3000, callback: this.addCloud, callbackScope: this, loop: true });
         this.addCloud(true); this.addCloud(true);
 
-        let debugSkip = this.add.text(W - 140, 10, "[ SKIP TO KERALA ]", { 
-            fontFamily: retroFont, fontSize: '8px', fill: '#0f0', backgroundColor: '#000', padding: { x: 5, y: 5 } 
-        }).setDepth(2000).setInteractive();
-        
-        debugSkip.on('pointerdown', () => {
-            this.score = 53; 
-            this.scoreText.setText(this.score);
-            this.updateLevel();
-        });
-
         this.currentMusic = dummyAudio;
         let bgmKey = this.levels[0].bgm; 
         if (this.cache.audio.exists(bgmKey)) {
-            this.currentMusic = this.sound.add(bgmKey, { loop: true, volume: 0.4 });
+            this.currentMusic = this.sound.add(bgmKey, { loop: true, volume: 0.2 });
             this.currentMusic.play();
         }
 
@@ -579,7 +569,7 @@ class MainGame extends Phaser.Scene {
     handleDeath() {
         if (!this.gameStarted) return; 
         
-        if (this.cache.audio.exists('dead_sfx')) this.sound.play('dead_sfx', { volume: 0.5 });
+        if (this.cache.audio.exists('dead_sfx')) this.sound.play('dead_sfx', { volume: 0.3 });
         this.currentMusic.stop(); 
         this.physics.pause(); this.pipeTimer.paused = true; 
         this.player.list.forEach(child => { if (child.setTint) child.setTint(0xff0000); });
@@ -853,6 +843,16 @@ const config = {
     scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
     physics: { default: 'arcade', arcade: { gravity: { y: gameSettings.gravity } } }, 
     scene: [PreloadScene, StartScene, MainGame, Cutscene, FinalScene, UIOverlay] 
+};
+// --- DYNAMIC HEIGHT CALCULATION ---
+const config = {
+    type: Phaser.AUTO, 
+    width: 400, 
+    height: (window.innerHeight / window.innerWidth) * 400, 
+    backgroundColor: '#000',
+    scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
+    physics: { default: 'arcade', arcade: { gravity: { y: gameSettings.gravity } } }, 
+    scene: [PreloadScene, StartScene, MainGame, Cutscene, FinalScene, UIOverlay]
 };
 
 // --- BULLETPROOF WEBFONT LOADER ---
