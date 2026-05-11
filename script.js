@@ -302,6 +302,17 @@ class MainGame extends Phaser.Scene {
         this.time.addEvent({ delay: 3000, callback: this.addCloud, callbackScope: this, loop: true });
         this.addCloud(true); this.addCloud(true);
 
+        // --- PASTE THIS RIGHT BELOW this.addCloud(true); ---
+        let skipBtn = this.add.text(W - 10, 10, "SKIP TO KERALA", { 
+            fontFamily: retroFont, fontSize: '10px', fill: '#0f0', backgroundColor: '#000', padding: { x: 5, y: 5 } 
+        }).setOrigin(1, 0).setDepth(2000).setInteractive();
+        
+        skipBtn.on('pointerdown', () => {
+            this.score = 53; 
+            this.scoreText.setText(this.score);
+            this.updateLevel();
+        });
+
         this.currentMusic = dummyAudio;
         let bgmKey = this.levels[0].bgm; 
         if (this.cache.audio.exists(bgmKey)) {
@@ -598,13 +609,14 @@ class Cutscene extends Phaser.Scene {
         this.H = this.cameras.main.height;
         this.cameras.main.fadeIn(1000, 255, 255, 255);
 
+        // --- REPLACE THE bgTop AND bgBot BLOCKS WITH THIS ---
         this.bgTop = this.add.image(this.W/2, this.H/4, 'turf_left');
-        let scaleT = Math.max(this.W / this.bgTop.width, (this.H/2) / this.bgTop.height);
-        this.bgTop.setScale(scaleT);
+        this.bgTop.displayWidth = this.W;
+        this.bgTop.displayHeight = this.H / 2;
 
         this.bgBot = this.add.image(this.W/2, (this.H/4) * 3, 'turf_right');
-        let scaleB = Math.max(this.W / this.bgBot.width, (this.H/2) / this.bgBot.height);
-        this.bgBot.setScale(scaleB);
+        this.bgBot.displayWidth = this.W;
+        this.bgBot.displayHeight = this.H / 2;
 
         this.divider1 = this.add.rectangle(this.W/2, this.H/2, this.W, 6, 0x000000).setDepth(2);
         this.divider2 = this.add.rectangle(this.W/2, this.H/2, this.W, 2, 0xffffff).setDepth(3);
