@@ -230,7 +230,7 @@ class StartScene extends Phaser.Scene {
         }).setOrigin(0.5);
         this.tweens.add({ targets: titleText, scale: 1.05, duration: 800, yoyo: true, loop: -1, ease: 'Sine.easeInOut' });
 
-        this.add.text(W/2, H/2 + 100, "Sarang is missing.\nOnly you can find him.\n\nMaybe he's somewhere \nyou guys visited?...or maybe not?", { 
+        this.add.text(W/2, H/2 + 100, "Sarang is missing.\nOnly you can find him.\n\nMaybe he's somewhere \nyou guys visited?...\nor maybe not...?", { 
             fontFamily: retroFont, fontSize: '12px', fill: '#e0f7fa', stroke: '#000', strokeThickness: 4, align: 'center', lineSpacing: 5
         }).setOrigin(0.5);
         
@@ -720,7 +720,7 @@ class Cutscene extends Phaser.Scene {
                 this.setDialogue("Sarang", "Hello? Yeah?");
                 break;
             case 5:
-                this.setUmang('gf_head'); 
+                this.setUmang('umang_phone'); 
                 this.setSarang('sarang_happy_talk');
                 this.setDialogue("Umang", "Fuck you! I've been searching for you everywhere!");
                 break;
@@ -746,6 +746,7 @@ class Cutscene extends Phaser.Scene {
                 this.setDialogue("Umang", "FUCK YOU!!! turn right!!");
                 break; 
             case 12:
+                this.setUmang('gf_head');
                 this.setSarang('sarang_look');
                 this.setDialogue("Sarang", "What the-.");
                 break;                                           
