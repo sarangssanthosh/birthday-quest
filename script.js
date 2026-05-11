@@ -599,12 +599,12 @@ class Cutscene extends Phaser.Scene {
         this.cameras.main.fadeIn(1000, 255, 255, 255);
 
         this.bgTop = this.add.image(this.W/2, this.H/4, 'turf_left');
-        this.bgTop.displayHeight = this.H/2; this.bgTop.scaleX = this.bgTop.scaleY;
-        if(this.bgTop.displayWidth < this.W) { this.bgTop.displayWidth = this.W; this.bgTop.scaleY = this.bgTop.scaleX; }
+        let scaleT = Math.max(this.W / this.bgTop.width, (this.H/2) / this.bgTop.height);
+        this.bgTop.setScale(scaleT);
 
-        this.bgBot = this.add.image(this.W/2, 3*this.H/4, 'turf_right');
-        this.bgBot.displayHeight = this.H/2; this.bgBot.scaleX = this.bgBot.scaleY;
-        if(this.bgBot.displayWidth < this.W) { this.bgBot.displayWidth = this.W; this.bgBot.scaleY = this.bgBot.scaleX; }
+        this.bgBot = this.add.image(this.W/2, (this.H/4) * 3, 'turf_right');
+        let scaleB = Math.max(this.W / this.bgBot.width, (this.H/2) / this.bgBot.height);
+        this.bgBot.setScale(scaleB);
 
         this.divider1 = this.add.rectangle(this.W/2, this.H/2, this.W, 6, 0x000000).setDepth(2);
         this.divider2 = this.add.rectangle(this.W/2, this.H/2, this.W, 2, 0xffffff).setDepth(3);
