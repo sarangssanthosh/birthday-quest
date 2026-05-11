@@ -113,7 +113,7 @@ class PreloadScene extends Phaser.Scene {
             { name: "College", img: "delhi_college.png" },      
             { name: "Hostel", img: "delhi_hostel.png" },  
             { name: "K F C", img: "delhi_town.png" },   
-            { name: "LJPT Home", img: "delhi_house.png" },  
+            { name: "LJPT NGR", img: "delhi_house.png" },  
             { name: "Jaipur", img: "jaipur.png" },
             { name: "McLeod Ganj", img: "mcleodganj.png" },
             { name: "Sharjah", img: "dubai.png" },
@@ -438,27 +438,34 @@ class MainGame extends Phaser.Scene {
         });
     }
 
-    updateLevel() {
+updateLevel() {
         let idx = 0;
         for (let i = 0; i < this.milestones.length; i++) { if (this.score >= this.milestones[i]) idx = i; }
+        
         if (idx !== this.currentLevelIndex && !this.isTransitioning) {
+            if (idx > 0 && idx % 2 === 0) { this.queueHeartSpawn = true; }
             
-            if (idx > 0 && idx % 2 === 0) {
-                this.queueHeartSpawn = true;
-            }
-
-            this.isTransitioning = true; this.dialogueTriggered = false;
+            this.isTransitioning = true; 
+            this.dialogueTriggered = false;
             let next = this.levels[idx];
             
-            this.fadeBg.setTexture(next.name).setAlpha(0).tilePositionX = 0;
+            // --- THE FIX: Sync positions before the fade starts ---
+            this.fadeBg.setTexture(next.name);
             this.updateBgScale(this.fadeBg, idx);
+            this.fadeBg.setAlpha(0);
+            this.fadeBg.tilePositionX = this.background.tilePositionX; // Match current scroll exactly
+            
             this.tweens.add({
-                targets: this.fadeBg, alpha: 1, duration: 1500,
+                targets: this.fadeBg, 
+                alpha: 1, 
+                duration: 1500,
                 onComplete: () => {
-                    this.background.setTexture(next.name).tilePositionX = 0;
+                    this.background.setTexture(next.name);
+                    this.background.tilePositionX = this.fadeBg.tilePositionX; // Keep the scroll continuous
                     this.updateBgScale(this.background, idx);
                     this.fadeBg.setAlpha(0);
-                    this.currentLevelIndex = idx; this.isTransitioning = false;
+                    this.currentLevelIndex = idx; 
+                    this.isTransitioning = false;
                 }
             });
             this.cityText.setText(next.name);
