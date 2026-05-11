@@ -219,7 +219,22 @@ class StartScene extends Phaser.Scene {
         this.introMusic = dummyAudio;
         if (this.cache.audio.exists('intro_bgm')) {
             this.introMusic = this.sound.add('intro_bgm', { loop: true, volume: 0.4 });
+            
+            // 1. Try to play immediately (might be blocked)
             this.introMusic.play();
+
+            // 2. CHROME/IOS FIX: Unlock audio on the very first touch
+            const unlockAudio = () => {
+                if (this.sound.context.state === 'suspended') {
+                    this.sound.context.resume();
+                }
+                if (this.introMusic && !this.introMusic.isPlaying) {
+                    this.introMusic.play();
+                }
+            };
+
+            this.input.once('pointerdown', unlockAudio);
+            this.input.keyboard.once('keydown', unlockAudio);
         }
 
         let player = createPlayer(this, W/2, H/2 - 220);
