@@ -578,7 +578,7 @@ updateLevel() {
 
     collectHeart(player, heart) {
         heart.destroy(); 
-        if (this.cache.audio.exists('score_sfx')) this.sound.play('score_sfx', { volume: 0.4 }); 
+        if (this.cache.audio.exists('score_sfx')) this.sound.play('score_sfx', { volume: 0.5 }); 
         
         if (this.lives < 3) {
             this.lives++;
@@ -592,7 +592,7 @@ updateLevel() {
     handleDeath() {
         if (!this.gameStarted) return; 
         
-        if (this.cache.audio.exists('dead_sfx')) this.sound.play('dead_sfx', { volume: 0.3 });
+        if (this.cache.audio.exists('dead_sfx')) this.sound.play('dead_sfx', { volume: 0.5 });
         this.currentMusic.stop(); 
         this.physics.pause(); this.pipeTimer.paused = true; 
         this.player.list.forEach(child => { if (child.setTint) child.setTint(0xff0000); });
