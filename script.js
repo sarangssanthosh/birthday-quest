@@ -45,13 +45,31 @@ function createPlayer(scene, x, y) {
     return playerContainer;
 }
 
-class StartScene extends Phaser.Scene {
-    constructor() { super('StartScene'); }
+// --- NEW GLOBAL PRELOAD SCENE ---
+class PreloadScene extends Phaser.Scene {
+    constructor() { super('PreloadScene'); }
+    
     preload() {
+        const W = this.cameras.main.width; 
+        const H = this.cameras.main.height;
+
+        // Visual Loading Bar
+        let loadingText = this.add.text(W/2, H/2 - 20, "LOADING...", { fontFamily: retroFont, fontSize: '16px', fill: '#fff' }).setOrigin(0.5);
+        let progressBox = this.add.graphics();
+        let progressBar = this.add.graphics();
+        progressBox.fillStyle(0x222222, 0.8);
+        progressBox.fillRect(W/2 - 110, H/2 + 10, 220, 24);
+
+        this.load.on('progress', function (value) {
+            progressBar.clear();
+            progressBar.fillStyle(0xff0055, 1);
+            progressBar.fillRect(W/2 - 105, H/2 + 14, 210 * value, 16);
+        });
+
+        // 1. Load Start Scene & Cutscene Images
         this.load.image('start_bg', 'start_bg.png'); 
         this.load.image('gf_head', 'gf_head.png'); 
         this.load.image('buddy', 'image-removebg-preview (3).png'); 
-
         this.load.image('turf_left', 'turf_left.png');
         this.load.image('turf_right', 'turf_right.png');
         this.load.image('final_bg', 'final_bg.png');
@@ -68,11 +86,24 @@ class StartScene extends Phaser.Scene {
         this.load.image('sarang_arms', 'sarang_arms.png');
         this.load.image('sarang_confused', 'sarang_confused.png');
         this.load.image('sarang_look', 'sarang_look.png');
+
+        // 2. Load Main Game Level Backgrounds
+        const levelImages = [
+            { name: "College", img: "delhi_college.png" },      
+            { name: "Hostel", img: "delhi_hostel.png" },  
+            { name: "K F C", img: "delhi_town.png" },   
+            { name: "LJPT NGR", img: "delhi_house.png" },  
+            { name: "Jaipur", img: "jaipur.png" },
+            { name: "McLeod Ganj", img: "mcleodganj.png" },
+            { name: "Sharjah", img: "dubai.png" },
+            { name: "Thiruvalla", img: "kerala.png" }
+        ];
+        levelImages.forEach(l => this.load.image(l.name, l.img));
         
+        // 3. Load All Audio
         this.load.audio('phone_ring', 'phone_ring.mp3');
         this.load.audio('happy_bday', 'happy_bday.mp3'); 
         this.load.audio('scary_transition', 'scary_transition.mp3');
-
         this.load.audio('intro_bgm', 'intro.mp3');
         this.load.audio('delhi_bgm', 'delhi_theme.mp3');
         this.load.audio('jaipur_bgm', 'jaipur_theme.mp3');
@@ -84,72 +115,87 @@ class StartScene extends Phaser.Scene {
         this.load.audio('dead_sfx', 'dead.mp3');
         this.load.audio('popup_sfx', 'bloop.mp3');
 
-        // Check if textures exist before generating to prevent opacity stacking
-        if (!this.textures.exists('wing')) {
-            let g = this.make.graphics({ x: 0, y: 0, add: false });
-            
-            const drawWing = (fillColor) => {
-                g.fillStyle(0x000000, 1);
-                g.fillEllipse(35, 12, 40, 14); g.fillEllipse(28, 22, 32, 12); g.fillEllipse(22, 32, 24, 10); 
-                g.fillStyle(fillColor, 1);
-                g.fillEllipse(35, 12, 34, 8); g.fillEllipse(28, 22, 26, 6); g.fillEllipse(22, 32, 18, 4); 
-            };
-            g.clear(); drawWing(0xffffff); g.generateTexture('wing', 60, 45);
-            g.clear(); drawWing(0xdddddd); g.generateTexture('wing_back', 60, 45);
-
-            g.clear();
-            g.lineStyle(6, 0xffd700, 1); g.strokeEllipse(30, 15, 50, 15);
-            g.lineStyle(2, 0xffff00, 0.5); g.strokeEllipse(30, 15, 46, 12);
-            g.generateTexture('halo', 60, 30);
-
-            g.clear(); 
-            g.fillStyle(0x000000, 0.2).fillRoundedRect(24, 4, 180, 70, 16).fillTriangle(24, 29, 4, 39, 24, 49); 
-            g.fillStyle(0xffffff, 1).fillRoundedRect(20, 0, 180, 70, 16).fillTriangle(20, 25, 0, 35, 20, 45); 
-            g.generateTexture('bubble', 210, 80);
-
-            const drawPixelHeart = (isBroken) => {
-                g.clear();
-                const color = isBroken ? 0x555555 : 0xff0000;
-                const outline = 0x111111;
-                const p = 4; // Pixel size
+        // 4. Generate all graphics exactly once
+        this.load.on('complete', () => {
+            if (!this.textures.exists('wing')) {
+                let g = this.make.graphics({ x: 0, y: 0, add: false });
                 
-                const map = [
-                    [0,0,1,1,0,1,1,0,0],
-                    [0,1,2,2,1,2,2,1,0],
-                    [1,2,2,2,2,2,2,2,1],
-                    [1,2,2,2,2,2,2,2,1],
-                    [0,1,2,2,2,2,2,1,0],
-                    [0,0,1,2,2,2,1,0,0],
-                    [0,0,0,1,2,1,0,0,0],
-                    [0,0,0,0,1,0,0,0,0]
-                ];
+                const drawWing = (fillColor) => {
+                    g.fillStyle(0x000000, 1);
+                    g.fillEllipse(35, 12, 40, 14); g.fillEllipse(28, 22, 32, 12); g.fillEllipse(22, 32, 24, 10); 
+                    g.fillStyle(fillColor, 1);
+                    g.fillEllipse(35, 12, 34, 8); g.fillEllipse(28, 22, 26, 6); g.fillEllipse(22, 32, 18, 4); 
+                };
+                g.clear(); drawWing(0xffffff); g.generateTexture('wing', 60, 45);
+                g.clear(); drawWing(0xdddddd); g.generateTexture('wing_back', 60, 45);
 
-                map.forEach((row, y) => {
-                    row.forEach((dot, x) => {
-                        if (dot === 1) { g.fillStyle(outline, 1); g.fillRect(x*p, y*p, p, p); }
-                        if (dot === 2) { 
-                            let finalColor = color;
-                            if (isBroken && x === y) finalColor = 0x222222;
-                            g.fillStyle(finalColor, 1); g.fillRect(x*p, y*p, p, p); 
-                        }
+                g.clear();
+                g.lineStyle(6, 0xffd700, 1); g.strokeEllipse(30, 15, 50, 15);
+                g.lineStyle(2, 0xffff00, 0.5); g.strokeEllipse(30, 15, 46, 12);
+                g.generateTexture('halo', 60, 30);
+
+                g.clear(); 
+                g.fillStyle(0x000000, 0.2).fillRoundedRect(24, 4, 180, 70, 16).fillTriangle(24, 29, 4, 39, 24, 49); 
+                g.fillStyle(0xffffff, 1).fillRoundedRect(20, 0, 180, 70, 16).fillTriangle(20, 25, 0, 35, 20, 45); 
+                g.generateTexture('bubble', 210, 80);
+
+                const drawPixelHeart = (isBroken) => {
+                    g.clear();
+                    const color = isBroken ? 0x555555 : 0xff0000;
+                    const outline = 0x111111;
+                    const p = 4; // Pixel size
+                    
+                    const map = [
+                        [0,0,1,1,0,1,1,0,0],
+                        [0,1,2,2,1,2,2,1,0],
+                        [1,2,2,2,2,2,2,2,1],
+                        [1,2,2,2,2,2,2,2,1],
+                        [0,1,2,2,2,2,2,1,0],
+                        [0,0,1,2,2,2,1,0,0],
+                        [0,0,0,1,2,1,0,0,0],
+                        [0,0,0,0,1,0,0,0,0]
+                    ];
+
+                    map.forEach((row, y) => {
+                        row.forEach((dot, x) => {
+                            if (dot === 1) { g.fillStyle(outline, 1); g.fillRect(x*p, y*p, p, p); }
+                            if (dot === 2) { 
+                                let finalColor = color;
+                                if (isBroken && x === y) finalColor = 0x222222;
+                                g.fillStyle(finalColor, 1); g.fillRect(x*p, y*p, p, p); 
+                            }
+                        });
                     });
-                });
-                if(!isBroken) { g.fillStyle(0xffffff, 0.8); g.fillRect(2*p, 1*p, p, p); }
-            };
+                    if(!isBroken) { g.fillStyle(0xffffff, 0.8); g.fillRect(2*p, 1*p, p, p); }
+                };
 
-            drawPixelHeart(false); g.generateTexture('pixel_heart', 40, 40);
-            drawPixelHeart(true); g.generateTexture('broken_heart', 40, 40);
+                drawPixelHeart(false); g.generateTexture('pixel_heart', 40, 40);
+                drawPixelHeart(true); g.generateTexture('broken_heart', 40, 40);
 
-            g.clear();
-            for (let i = 15; i > 0; i--) {
-                g.fillStyle(i % 2 === 0 ? 0xff00ff : 0x00ffff, 1);
-                g.fillCircle(60, 60, i * 4);
+                g.clear();
+                for (let i = 15; i > 0; i--) {
+                    g.fillStyle(i % 2 === 0 ? 0xff00ff : 0x00ffff, 1);
+                    g.fillCircle(60, 60, i * 4);
+                }
+                g.generateTexture('portal', 120, 120);
+
+                g.clear();
+                const alpha = gameSettings.pipeOpacity;
+                g.fillStyle(0x00001a, alpha).fillRect(0, 0, 60, 1000); g.fillStyle(0x001a4d, alpha).fillRect(4, 0, 52, 1000); g.fillStyle(0x004080, alpha).fillRect(8, 0, 15, 1000); g.fillStyle(0xffffff, alpha * 0.5).fillRect(12, 0, 5, 1000); 
+                g.fillStyle(0x00001a, alpha).fillRect(-5, 0, 70, 40); g.fillStyle(0x001a4d, alpha).fillRect(-1, 4, 62, 32); g.fillStyle(0x004080, alpha).fillRect(3, 4, 15, 32); g.fillStyle(0xffffff, alpha * 0.5).fillRect(7, 4, 5, 32);
+                g.generateTexture('pipe', 70, 1000);
+                g.clear(); g.fillStyle(0xffffff, 1); g.fillCircle(25, 40, 18); g.fillCircle(50, 30, 22); g.fillCircle(75, 40, 18); g.fillCircle(35, 20, 16); g.fillCircle(65, 20, 16); g.generateTexture('cloud', 100, 70);
+                g.destroy();
             }
-            g.generateTexture('portal', 120, 120);
             
-            g.destroy();
-        }
+            // Go to Start Scene automatically
+            this.scene.start('StartScene');
+        });
     }
+}
+
+class StartScene extends Phaser.Scene {
+    constructor() { super('StartScene'); }
     
     create() {
         const W = this.cameras.main.width; const H = this.cameras.main.height;
@@ -172,7 +218,7 @@ class StartScene extends Phaser.Scene {
         }).setOrigin(0.5);
         this.tweens.add({ targets: titleText, scale: 1.05, duration: 800, yoyo: true, loop: -1, ease: 'Sine.easeInOut' });
 
-        this.add.text(W/2, H/2 + 100, "Sarang is missing.\nOnly you can find him.\n\nMaybe he's somewhere \nyou guys travelled to? \n...or maybe not", { 
+        this.add.text(W/2, H/2 + 100, "Sarang is missing.\nOnly you can find him.\n\nMaybe he's at some place \nyou guys went...or maybe not", { 
             fontFamily: retroFont, fontSize: '12px', fill: '#e0f7fa', stroke: '#000', strokeThickness: 4, align: 'center', lineSpacing: 5
         }).setOrigin(0.5);
         
@@ -232,20 +278,6 @@ class MainGame extends Phaser.Scene {
         this.dialogueTriggered = false;
     }
 
-    preload() {
-        this.levels.forEach(l => this.load.image(l.name, l.img));
-        
-        if (!this.textures.exists('pipe')) {
-            let g = this.make.graphics({ x: 0, y: 0, add: false });
-            const alpha = gameSettings.pipeOpacity;
-            g.fillStyle(0x00001a, alpha).fillRect(0, 0, 60, 1000); g.fillStyle(0x001a4d, alpha).fillRect(4, 0, 52, 1000); g.fillStyle(0x004080, alpha).fillRect(8, 0, 15, 1000); g.fillStyle(0xffffff, alpha * 0.5).fillRect(12, 0, 5, 1000); 
-            g.fillStyle(0x00001a, alpha).fillRect(-5, 0, 70, 40); g.fillStyle(0x001a4d, alpha).fillRect(-1, 4, 62, 32); g.fillStyle(0x004080, alpha).fillRect(3, 4, 15, 32); g.fillStyle(0xffffff, alpha * 0.5).fillRect(7, 4, 5, 32);
-            g.generateTexture('pipe', 70, 1000);
-            g.clear(); g.fillStyle(0xffffff, 1); g.fillCircle(25, 40, 18); g.fillCircle(50, 30, 22); g.fillCircle(75, 40, 18); g.fillCircle(35, 20, 16); g.fillCircle(65, 20, 16); g.generateTexture('cloud', 100, 70);
-            g.destroy();
-        }
-    }
-
     create() {
         const W = this.cameras.main.width; const H = this.cameras.main.height;
         
@@ -257,6 +289,16 @@ class MainGame extends Phaser.Scene {
         this.clouds = this.add.group();
         this.time.addEvent({ delay: 3000, callback: this.addCloud, callbackScope: this, loop: true });
         this.addCloud(true); this.addCloud(true);
+
+        let debugSkip = this.add.text(W - 140, 10, "[ SKIP TO KERALA ]", { 
+            fontFamily: retroFont, fontSize: '8px', fill: '#0f0', backgroundColor: '#000', padding: { x: 5, y: 5 } 
+        }).setDepth(2000).setInteractive();
+        
+        debugSkip.on('pointerdown', () => {
+            this.score = 53; 
+            this.scoreText.setText(this.score);
+            this.updateLevel();
+        });
 
         this.currentMusic = dummyAudio;
         let bgmKey = this.levels[0].bgm; 
@@ -361,7 +403,7 @@ class MainGame extends Phaser.Scene {
                     
                     if (this.score === 61 && !this.portalDialogueTriggered) {
                         this.portalDialogueTriggered = true;
-                        this.showDialogue("He's not here\nWTFF IS THAT?!?!");
+                        this.showDialogue("Wait... what is that?!\nA TRIPPY PORTAL?!\nJump into it!");
                     }
 
                     if (this.score === 62 && !this.portalSpawned) {
@@ -565,7 +607,6 @@ class Cutscene extends Phaser.Scene {
         this.umang.setDepth(4);
         this.setUmang('umang_confused'); 
         
-        // --- CHANGED FROM RECTANGLE TO GRAPHICS FOR ROUNDED CORNERS ---
         this.dialogueBox = this.add.graphics().setAlpha(0).setDepth(10);
         this.textObj = this.add.text(0, 0, "", { 
             fontFamily: retroFont, 
@@ -606,18 +647,15 @@ class Cutscene extends Phaser.Scene {
         
         if (speaker === "Umang") {
             this.textObj.setOrigin(0, 0);
-            // LOCKED to the top panel
             this.textObj.setPosition(30, 30);
         } else {
             this.textObj.setOrigin(1, 1);
-            // LOCKED to the bottom panel
             this.textObj.setPosition(this.W - 30, this.H - 30);
         }
         
         let bounds = this.textObj.getBounds();
         this.dialogueBox.clear();
         this.dialogueBox.fillStyle(0xffffff, 1);
-        // Draw a cloud-like rounded rectangle with 25px border radius
         this.dialogueBox.fillRoundedRect(bounds.x - 20, bounds.y - 20, bounds.width + 40, bounds.height + 40, 25);
     }
 
@@ -636,7 +674,7 @@ class Cutscene extends Phaser.Scene {
                 break;
             case 3:
                 this.canClick = false; 
-                this.setUmang('umang_skip');
+                this.setUmang('umang_phone');
                 this.setDialogue("Umang", "Ofc... He's sleeping! Let me call him.");
                 
                 let ring = dummyAudio;
@@ -802,7 +840,7 @@ const config = {
     type: Phaser.AUTO, width: 400, height: 700, backgroundColor: '#000',
     scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
     physics: { default: 'arcade', arcade: { gravity: { y: gameSettings.gravity } } }, 
-    scene: [StartScene, MainGame, Cutscene, FinalScene, UIOverlay] 
+    scene: [PreloadScene, StartScene, MainGame, Cutscene, FinalScene, UIOverlay] 
 };
 
 // --- BULLETPROOF WEBFONT LOADER ---
