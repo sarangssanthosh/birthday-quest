@@ -855,21 +855,25 @@ const config = {
     scene: [PreloadScene, StartScene, MainGame, Cutscene, FinalScene, UIOverlay] 
 };
 
+// --- DYNAMIC HEIGHT CALCULATION ---
+const config = {
+    type: Phaser.AUTO, 
+    width: 400, 
+    height: (window.innerHeight / window.innerWidth) * 400, 
+    backgroundColor: '#000',
+    scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
+    physics: { default: 'arcade', arcade: { gravity: { y: gameSettings.gravity } } }, 
+    scene: [PreloadScene, StartScene, MainGame, Cutscene, FinalScene, UIOverlay] 
+};
+
 // --- BULLETPROOF WEBFONT LOADER ---
 const webFontScript = document.createElement('script');
 webFontScript.src = 'https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js';
 webFontScript.onload = () => {
     WebFont.load({
-        google: {
-            families: ['Press Start 2P']
-        },
-        active: () => {
-            new Phaser.Game(config);
-        },
-        inactive: () => {
-            // Fallback just in case of network block
-            new Phaser.Game(config);
-        }
+        google: { families: ['Press Start 2P'] },
+        active: () => { new Phaser.Game(config); },
+        inactive: () => { new Phaser.Game(config); }
     });
 };
 document.head.appendChild(webFontScript);
