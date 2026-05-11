@@ -137,71 +137,56 @@ class PreloadScene extends Phaser.Scene {
         this.load.audio('popup_sfx', 'bloop.mp3');
 
         // 4. Generate remaining graphics exactly once
+// --- REPLACE THE ENTIRE this.load.on('complete') BLOCK WITH THIS ---
         this.load.on('complete', () => {
-            if (!this.textures.exists('halo')) { // check halo since wing is already generated
+            // 1. Generate remaining textures (keeping your existing logic)
+            if (!this.textures.exists('halo')) {
                 let g = this.make.graphics({ x: 0, y: 0, add: false });
-                
-                g.clear();
-                g.lineStyle(6, 0xffd700, 1); g.strokeEllipse(30, 15, 50, 15);
+                g.clear(); g.lineStyle(6, 0xffd700, 1); g.strokeEllipse(30, 15, 50, 15);
                 g.lineStyle(2, 0xffff00, 0.5); g.strokeEllipse(30, 15, 46, 12);
                 g.generateTexture('halo', 60, 30);
-
-                g.clear(); 
-                g.fillStyle(0x000000, 0.2).fillRoundedRect(24, 4, 180, 70, 16).fillTriangle(24, 29, 4, 39, 24, 49); 
+                
+                g.clear(); g.fillStyle(0x000000, 0.2).fillRoundedRect(24, 4, 180, 70, 16).fillTriangle(24, 29, 4, 39, 24, 49); 
                 g.fillStyle(0xffffff, 1).fillRoundedRect(20, 0, 180, 70, 16).fillTriangle(20, 25, 0, 35, 20, 45); 
                 g.generateTexture('bubble', 210, 80);
 
                 const drawPixelHeart = (isBroken) => {
-                    g.clear();
-                    const color = isBroken ? 0x555555 : 0xff0000;
-                    const outline = 0x111111;
-                    const p = 4; // Pixel size
-                    
-                    const map = [
-                        [0,0,1,1,0,1,1,0,0],
-                        [0,1,2,2,1,2,2,1,0],
-                        [1,2,2,2,2,2,2,2,1],
-                        [1,2,2,2,2,2,2,2,1],
-                        [0,1,2,2,2,2,2,1,0],
-                        [0,0,1,2,2,2,1,0,0],
-                        [0,0,0,1,2,1,0,0,0],
-                        [0,0,0,0,1,0,0,0,0]
-                    ];
-
-                    map.forEach((row, y) => {
-                        row.forEach((dot, x) => {
-                            if (dot === 1) { g.fillStyle(outline, 1); g.fillRect(x*p, y*p, p, p); }
-                            if (dot === 2) { 
-                                let finalColor = color;
-                                if (isBroken && x === y) finalColor = 0x222222;
-                                g.fillStyle(finalColor, 1); g.fillRect(x*p, y*p, p, p); 
-                            }
-                        });
-                    });
+                    g.clear(); const color = isBroken ? 0x555555 : 0xff0000; const outline = 0x111111; const p = 4;
+                    const map = [[0,0,1,1,0,1,1,0,0],[0,1,2,2,1,2,2,1,0],[1,2,2,2,2,2,2,2,1],[1,2,2,2,2,2,2,2,1],[0,1,2,2,2,2,2,1,0],[0,0,1,2,2,2,1,0,0],[0,0,0,1,2,1,0,0,0],[0,0,0,0,1,0,0,0,0]];
+                    map.forEach((row, y) => { row.forEach((dot, x) => { if (dot === 1) { g.fillStyle(outline, 1); g.fillRect(x*p, y*p, p, p); } if (dot === 2) { let finalColor = color; if (isBroken && x === y) finalColor = 0x222222; g.fillStyle(finalColor, 1); g.fillRect(x*p, y*p, p, p); } }); });
                     if(!isBroken) { g.fillStyle(0xffffff, 0.8); g.fillRect(2*p, 1*p, p, p); }
                 };
-
                 drawPixelHeart(false); g.generateTexture('pixel_heart', 40, 40);
                 drawPixelHeart(true); g.generateTexture('broken_heart', 40, 40);
 
-                g.clear();
-                for (let i = 15; i > 0; i--) {
-                    g.fillStyle(i % 2 === 0 ? 0xff00ff : 0x00ffff, 1);
-                    g.fillCircle(60, 60, i * 4);
-                }
+                g.clear(); for (let i = 15; i > 0; i--) { g.fillStyle(i % 2 === 0 ? 0xff00ff : 0x00ffff, 1); g.fillCircle(60, 60, i * 4); }
                 g.generateTexture('portal', 120, 120);
 
-                g.clear();
-                const alpha = gameSettings.pipeOpacity;
+                g.clear(); const alpha = gameSettings.pipeOpacity;
                 g.fillStyle(0x00001a, alpha).fillRect(0, 0, 60, 1000); g.fillStyle(0x001a4d, alpha).fillRect(4, 0, 52, 1000); g.fillStyle(0x004080, alpha).fillRect(8, 0, 15, 1000); g.fillStyle(0xffffff, alpha * 0.5).fillRect(12, 0, 5, 1000); 
                 g.fillStyle(0x00001a, alpha).fillRect(-5, 0, 70, 40); g.fillStyle(0x001a4d, alpha).fillRect(-1, 4, 62, 32); g.fillStyle(0x004080, alpha).fillRect(3, 4, 15, 32); g.fillStyle(0xffffff, alpha * 0.5).fillRect(7, 4, 5, 32);
                 g.generateTexture('pipe', 70, 1000);
                 g.clear(); g.fillStyle(0xffffff, 1); g.fillCircle(25, 40, 18); g.fillCircle(50, 30, 22); g.fillCircle(75, 40, 18); g.fillCircle(35, 20, 16); g.fillCircle(65, 20, 16); g.generateTexture('cloud', 100, 70);
                 g.destroy();
             }
+
+            // 2. Hide loading bar and show "TAP TO START"
+            progressBar.destroy();
+            progressBox.destroy();
+            loadingText.setText("READY!");
             
-            // Go to Start Scene automatically
-            this.scene.start('StartScene');
+            let continueText = this.add.text(W/2, H/2 + 40, "► TAP TO CONTINUE ◄", { 
+                fontFamily: retroFont, fontSize: '14px', fill: '#00e676', stroke: '#000', strokeThickness: 4 
+            }).setOrigin(0.5);
+            this.tweens.add({ targets: continueText, alpha: 0.2, duration: 500, yoyo: true, loop: -1 });
+
+            // 3. Wait for tap to unlock audio and start game
+            this.input.once('pointerdown', () => {
+                if (this.sound.context.state === 'suspended') {
+                    this.sound.context.resume();
+                }
+                this.scene.start('StartScene');
+            });
         });
     }
 }
