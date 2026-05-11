@@ -90,6 +90,7 @@ class PreloadScene extends Phaser.Scene {
 
         // 1. Load Start Scene & Cutscene Images
         this.load.image('trip_bg', 'trip_bg.png'); // NEW TRIP BACKGROUND
+        this.load.image('umang_dizzy', 'umang_dizzy.png');
         this.load.image('start_bg', 'start_bg.png'); 
         this.load.image('buddy', 'image-removebg-preview (3).png'); 
         this.load.image('turf_left', 'turf_left.png');
@@ -616,7 +617,8 @@ class TripScene extends Phaser.Scene {
 
         // Add the player character to float and spin
         this.player = createPlayer(this, W/2, H/2);
-        this.player.setScale(1.5); 
+        this.player.list[1].setTexture('umang_dizzy'); // --- ADD THIS LINE TO CHANGE HER FACE ---
+        this.player.setScale(1.5);
         
         // Slowly spin through the trip
         this.tweens.add({ targets: this.player, angle: 360, duration: 4000, repeat: -1 });
