@@ -305,16 +305,6 @@ class MainGame extends Phaser.Scene {
         this.time.addEvent({ delay: 3000, callback: this.addCloud, callbackScope: this, loop: true });
         this.addCloud(true); this.addCloud(true);
 
-        let skipBtn = this.add.text(W - 10, 10, "SKIP TO KERALA", { 
-            fontFamily: retroFont, fontSize: '10px', fill: '#0f0', backgroundColor: '#000', padding: { x: 5, y: 5 } 
-        }).setOrigin(1, 0).setDepth(2000).setInteractive();
-        
-        skipBtn.on('pointerdown', () => {
-            this.score = 53; 
-            this.scoreText.setText(this.score);
-            this.updateLevel();
-        });
-
         this.currentMusic = dummyAudio;
         let bgmKey = this.levels[0].bgm; 
         if (this.cache.audio.exists(bgmKey)) {
