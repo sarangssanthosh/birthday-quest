@@ -218,7 +218,7 @@ class StartScene extends Phaser.Scene {
 
         this.introMusic = dummyAudio;
         if (this.cache.audio.exists('intro_bgm')) {
-            this.introMusic = this.sound.add('intro_bgm', { loop: true, volume: 0.2 });
+            this.introMusic = this.sound.add('intro_bgm', { loop: true, volume: 0.4 });
             this.introMusic.play();
         }
 
@@ -305,7 +305,7 @@ class MainGame extends Phaser.Scene {
         this.currentMusic = dummyAudio;
         let bgmKey = this.levels[0].bgm; 
         if (this.cache.audio.exists(bgmKey)) {
-            this.currentMusic = this.sound.add(bgmKey, { loop: true, volume: 0.2 });
+            this.currentMusic = this.sound.add(bgmKey, { loop: true, volume: 0.4 });
             this.currentMusic.play();
         }
 
@@ -514,8 +514,8 @@ class MainGame extends Phaser.Scene {
             this.sound.play('score_sfx', { volume: 0.8 }); 
         }
 
-        this.cameras.main.shake(2000, 0.05);
-        this.cameras.main.flash(500, 255, 0, 0);
+        this.cameras.main.shake(3000, 0.05);
+        this.cameras.main.flash(1500, 255, 0, 0);
         
         this.tweens.add({
             targets: this.cameras.main,
