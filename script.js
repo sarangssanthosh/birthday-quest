@@ -66,9 +66,30 @@ class PreloadScene extends Phaser.Scene {
             progressBar.fillRect(W/2 - 105, H/2 + 14, 210 * value, 16);
         });
 
+        // --- GENERATE WINGS EARLY FOR THE LOADING SCREEN ---
+        if (!this.textures.exists('wing')) {
+            let g = this.make.graphics({ x: 0, y: 0, add: false });
+            const drawWing = (fillColor) => {
+                g.fillStyle(0x000000, 1);
+                g.fillEllipse(35, 12, 40, 14); g.fillEllipse(28, 22, 32, 12); g.fillEllipse(22, 32, 24, 10); 
+                g.fillStyle(fillColor, 1);
+                g.fillEllipse(35, 12, 34, 8); g.fillEllipse(28, 22, 26, 6); g.fillEllipse(22, 32, 18, 4); 
+            };
+            g.clear(); drawWing(0xffffff); g.generateTexture('wing', 60, 45);
+            g.clear(); drawWing(0xdddddd); g.generateTexture('wing_back', 60, 45);
+            g.destroy();
+        }
+
+        // --- LOAD HEAD FIRST & SHOW IMMEDIATELY ---
+        this.load.image('gf_head', 'gf_head.png');
+        this.load.once('filecomplete-image-gf_head', () => {
+            let player = createPlayer(this, W/2, H/2 - 130);
+            player.setScale(1.4); // Big image
+            this.tweens.add({ targets: player, y: H/2 - 150, duration: 1500, ease: 'Sine.easeInOut', yoyo: true, loop: -1 });
+        });
+
         // 1. Load Start Scene & Cutscene Images
         this.load.image('start_bg', 'start_bg.png'); 
-        this.load.image('gf_head', 'gf_head.png'); 
         this.load.image('buddy', 'image-removebg-preview (3).png'); 
         this.load.image('turf_left', 'turf_left.png');
         this.load.image('turf_right', 'turf_right.png');
@@ -115,20 +136,11 @@ class PreloadScene extends Phaser.Scene {
         this.load.audio('dead_sfx', 'dead.mp3');
         this.load.audio('popup_sfx', 'bloop.mp3');
 
-        // 4. Generate all graphics exactly once
+        // 4. Generate remaining graphics exactly once
         this.load.on('complete', () => {
-            if (!this.textures.exists('wing')) {
+            if (!this.textures.exists('halo')) { // check halo since wing is already generated
                 let g = this.make.graphics({ x: 0, y: 0, add: false });
                 
-                const drawWing = (fillColor) => {
-                    g.fillStyle(0x000000, 1);
-                    g.fillEllipse(35, 12, 40, 14); g.fillEllipse(28, 22, 32, 12); g.fillEllipse(22, 32, 24, 10); 
-                    g.fillStyle(fillColor, 1);
-                    g.fillEllipse(35, 12, 34, 8); g.fillEllipse(28, 22, 26, 6); g.fillEllipse(22, 32, 18, 4); 
-                };
-                g.clear(); drawWing(0xffffff); g.generateTexture('wing', 60, 45);
-                g.clear(); drawWing(0xdddddd); g.generateTexture('wing_back', 60, 45);
-
                 g.clear();
                 g.lineStyle(6, 0xffd700, 1); g.strokeEllipse(30, 15, 50, 15);
                 g.lineStyle(2, 0xffff00, 0.5); g.strokeEllipse(30, 15, 46, 12);
