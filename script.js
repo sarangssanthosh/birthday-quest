@@ -646,7 +646,7 @@ class Cutscene extends Phaser.Scene {
         this.umang = createPlayer(this, -100, this.H/4);
         this.umang.setScale(0.85); 
         this.umang.setDepth(4);
-        this.setUmang('umang_confused'); 
+        this.setUmang('gf_head'); 
         
         this.dialogueBox = this.add.graphics().setAlpha(0).setDepth(10);
         this.textObj = this.add.text(0, 0, "", { 
