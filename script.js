@@ -91,6 +91,7 @@ class PreloadScene extends Phaser.Scene {
         // 1. Load Start Scene & Cutscene Images
         this.load.image('trip_bg', 'trip_bg.png'); // NEW TRIP BACKGROUND
         this.load.image('umang_dizzy', 'umang_dizzy.png');
+        this.load.image('umang_angry', 'umang_angry.png');
         this.load.image('start_bg', 'start_bg.png'); 
         this.load.image('buddy', 'image-removebg-preview (3).png'); 
         this.load.image('turf_left', 'turf_left.png');
@@ -627,7 +628,7 @@ class TripScene extends Phaser.Scene {
         this.tweens.add({ targets: this.player, y: H/2 - 30, duration: 1500, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
 
         // After 7 seconds, do the shaky flash transition you had previously
-        this.time.delayedCall(7000, () => {
+        this.time.delayedCall(15000, () => {
             if (this.tripMusic) this.tripMusic.stop();
             if (this.cache.audio.exists('scary_transition')) {
                 this.sound.play('scary_transition', { volume: 1.0 });
@@ -694,7 +695,7 @@ class Cutscene extends Phaser.Scene {
         this.umang = createPlayer(this, -100, this.H/4);
         this.umang.setScale(0.85); 
         this.umang.setDepth(4);
-        this.setUmang('gf_head'); 
+        this.setUmang('umang_dizzy'); 
         
         this.dialogueBox = this.add.graphics().setAlpha(0).setDepth(10);
         this.textObj = this.add.text(0, 0, "", { 
@@ -754,7 +755,7 @@ class Cutscene extends Phaser.Scene {
 
         switch (this.step) {
             case 1:
-                this.setUmang('gf_head');
+                this.setUmang('umang_dizzy');
                 this.setDialogue("Umang", "Where TF am I?!");
                 break;
             case 2:
@@ -783,7 +784,7 @@ class Cutscene extends Phaser.Scene {
                 this.setDialogue("Sarang", "Hello? Yeah?");
                 break;
             case 5:
-                this.setUmang('umang_phone'); 
+                this.setUmang('umang_angry'); 
                 this.setSarang('sarang_happy_talk');
                 this.setDialogue("Umang", "Fuck you! I've been searching for you everywhere!");
                 break;
