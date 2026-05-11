@@ -700,7 +700,7 @@ class Cutscene extends Phaser.Scene {
                 break;
             case 3:
                 this.canClick = false; 
-                this.setUmang('umang_phone');
+                this.setUmang('gf_head');
                 this.setDialogue("Umang", "Ofc... He's sleeping! Let me call him.");
                 
                 let ring = dummyAudio;
