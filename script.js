@@ -89,6 +89,7 @@ class PreloadScene extends Phaser.Scene {
         });
 
         // 1. Load Start Scene & Cutscene Images
+        this.load.image('trip_bg', 'trip_bg.jpg'); // NEW TRIP BACKGROUND
         this.load.image('start_bg', 'start_bg.png'); 
         this.load.image('buddy', 'image-removebg-preview (3).png'); 
         this.load.image('turf_left', 'turf_left.png');
@@ -122,6 +123,7 @@ class PreloadScene extends Phaser.Scene {
         levelImages.forEach(l => this.load.image(l.name, l.img));
         
         // 3. Load All Audio
+        this.load.audio('trip_music', 'trip_music.mp3'); // NEW TRIP MUSIC
         this.load.audio('phone_ring', 'phone_ring.mp3');
         this.load.audio('happy_bday', 'happy_bday.mp3'); 
         this.load.audio('scary_transition', 'scary_transition.mp3');
@@ -137,7 +139,6 @@ class PreloadScene extends Phaser.Scene {
         this.load.audio('popup_sfx', 'bloop.mp3');
 
         // 4. Generate remaining graphics exactly once
-// --- REPLACE THE ENTIRE this.load.on('complete') BLOCK WITH THIS ---
         this.load.on('complete', () => {
             // 1. Generate remaining textures (keeping your existing logic)
             if (!this.textures.exists('halo')) {
@@ -302,7 +303,6 @@ class MainGame extends Phaser.Scene {
         this.time.addEvent({ delay: 3000, callback: this.addCloud, callbackScope: this, loop: true });
         this.addCloud(true); this.addCloud(true);
 
-        // --- PASTE THIS RIGHT BELOW this.addCloud(true); ---
         let skipBtn = this.add.text(W - 10, 10, "SKIP TO KERALA", { 
             fontFamily: retroFont, fontSize: '10px', fill: '#0f0', backgroundColor: '#000', padding: { x: 5, y: 5 } 
         }).setOrigin(1, 0).setDepth(2000).setInteractive();
@@ -449,7 +449,7 @@ class MainGame extends Phaser.Scene {
         });
     }
 
-updateLevel() {
+    updateLevel() {
         let idx = 0;
         for (let i = 0; i < this.milestones.length; i++) { if (this.score >= this.milestones[i]) idx = i; }
         if (idx !== this.currentLevelIndex && !this.isTransitioning) {
@@ -537,17 +537,7 @@ updateLevel() {
             this.sound.play('score_sfx', { volume: 0.8 }); 
         }
 
-        this.cameras.main.shake(3000, 0.05);
-        this.cameras.main.flash(1500, 255, 0, 0);
-        
-        this.tweens.add({
-            targets: this.cameras.main,
-            zoom: 1.2,
-            rotation: 0.05,
-            yoyo: true,
-            repeat: 7,
-            duration: 100
-        });
+        // --- SHAKE AND FLASH MOVED TO THE TRIP SCENE ---
 
         this.tweens.add({
             targets: player,
@@ -563,7 +553,7 @@ updateLevel() {
                 this.cameras.main.once('camerafadeoutcomplete', () => {
                     this.cameras.main.setZoom(1);
                     this.cameras.main.setRotation(0);
-                    this.scene.start('Cutscene');
+                    this.scene.start('TripScene'); // Transferred to TripScene instead of Cutscene
                 });
             }
         });
@@ -601,6 +591,78 @@ updateLevel() {
     }
 }
 
+// --- NEW TRIPPY ACID PORTAL SCENE ---
+class TripScene extends Phaser.Scene {
+    constructor() { super('TripScene'); }
+    
+    create() {
+        const W = this.cameras.main.width; 
+        const H = this.cameras.main.height;
+        this.cameras.main.fadeIn(500, 255, 255, 255);
+
+        // Add the trippy background
+        this.bg = this.add.tileSprite(W/2, H/2, W, H, 'trip_bg');
+        if (this.textures.exists('trip_bg')) {
+            const textureScale = Math.max(W / this.textures.get('trip_bg').getSourceImage().width, H / this.textures.get('trip_bg').getSourceImage().height);
+            this.bg.setTileScale(textureScale);
+        }
+
+        // Play trip music
+        this.tripMusic = dummyAudio;
+        if (this.cache.audio.exists('trip_music')) {
+            this.tripMusic = this.sound.add('trip_music', { loop: true, volume: 0.8 });
+            this.tripMusic.play();
+        }
+
+        // Add the player character to float and spin
+        this.player = createPlayer(this, W/2, H/2);
+        this.player.setScale(1.5); 
+        
+        // Slowly spin through the trip
+        this.tweens.add({ targets: this.player, angle: 360, duration: 4000, repeat: -1 });
+        
+        // Float movement
+        this.tweens.add({ targets: this.player, y: H/2 - 30, duration: 1500, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+
+        // After 7 seconds, do the shaky flash transition you had previously
+        this.time.delayedCall(7000, () => {
+            if (this.tripMusic) this.tripMusic.stop();
+            if (this.cache.audio.exists('scary_transition')) {
+                this.sound.play('scary_transition', { volume: 1.0 });
+            }
+
+            // --- THIS IS THE SHAKY FLASH MOVED FROM MAIN GAME ---
+            this.cameras.main.shake(3000, 0.05);
+            this.cameras.main.flash(1500, 255, 0, 0);
+            
+            this.tweens.add({
+                targets: this.cameras.main,
+                zoom: 1.2,
+                rotation: 0.05,
+                yoyo: true,
+                repeat: 7,
+                duration: 100
+            });
+
+            // Fade out to white and go to Cutscene
+            this.cameras.main.fade(2000, 255, 255, 255);
+            this.cameras.main.once('camerafadeoutcomplete', () => {
+                this.cameras.main.setZoom(1);
+                this.cameras.main.setRotation(0);
+                this.scene.start('Cutscene');
+            });
+        });
+    }
+
+    update() {
+        if (this.bg) {
+            // Scroll the background to create a tunnel/trip effect
+            this.bg.tilePositionX += 4;
+            this.bg.tilePositionY += 4;
+        }
+    }
+}
+
 class Cutscene extends Phaser.Scene {
     constructor() { super('Cutscene'); }
     
@@ -609,7 +671,6 @@ class Cutscene extends Phaser.Scene {
         this.H = this.cameras.main.height;
         this.cameras.main.fadeIn(1000, 255, 255, 255);
 
-        // --- REPLACE THE bgTop AND bgBot BLOCKS WITH THIS ---
         this.bgTop = this.add.image(this.W/2, this.H/4, 'turf_left');
         this.bgTop.displayWidth = this.W;
         this.bgTop.displayHeight = this.H / 2;
@@ -867,7 +928,7 @@ const config = {
     type: Phaser.AUTO, width: 400, height: 700, backgroundColor: '#000',
     scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
     physics: { default: 'arcade', arcade: { gravity: { y: gameSettings.gravity } } }, 
-    scene: [PreloadScene, StartScene, MainGame, Cutscene, FinalScene, UIOverlay] 
+    scene: [PreloadScene, StartScene, MainGame, TripScene, Cutscene, FinalScene, UIOverlay]
 };
 
 // --- BULLETPROOF WEBFONT LOADER ---
