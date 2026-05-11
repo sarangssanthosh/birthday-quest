@@ -495,7 +495,7 @@ class MainGame extends Phaser.Scene {
     jump() { 
         if (!this.gameStarted) return; 
         
-        if (this.cache.audio.exists('jump_sfx')) this.sound.play('jump_sfx', { volume: 0.3 });
+        if (this.cache.audio.exists('jump_sfx')) this.sound.play('jump_sfx', { volume: 0.1 });
         this.player.body.setVelocityY(gameSettings.jumpStrength); 
     }
     
@@ -628,7 +628,7 @@ class TripScene extends Phaser.Scene {
         this.tweens.add({ targets: this.player, y: H/2 - 30, duration: 1500, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
 
         // After 7 seconds, do the shaky flash transition you had previously
-        this.time.delayedCall(15000, () => {
+        this.time.delayedCall(20000, () => {
             if (this.tripMusic) this.tripMusic.stop();
             if (this.cache.audio.exists('scary_transition')) {
                 this.sound.play('scary_transition', { volume: 1.0 });
