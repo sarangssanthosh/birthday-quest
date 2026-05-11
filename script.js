@@ -844,16 +844,6 @@ const config = {
     physics: { default: 'arcade', arcade: { gravity: { y: gameSettings.gravity } } }, 
     scene: [PreloadScene, StartScene, MainGame, Cutscene, FinalScene, UIOverlay] 
 };
-// --- DYNAMIC HEIGHT CALCULATION ---
-const config = {
-    type: Phaser.AUTO, 
-    width: 400, 
-    height: (window.innerHeight / window.innerWidth) * 400, 
-    backgroundColor: '#000',
-    scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
-    physics: { default: 'arcade', arcade: { gravity: { y: gameSettings.gravity } } }, 
-    scene: [PreloadScene, StartScene, MainGame, Cutscene, FinalScene, UIOverlay]
-};
 
 // --- BULLETPROOF WEBFONT LOADER ---
 const webFontScript = document.createElement('script');
